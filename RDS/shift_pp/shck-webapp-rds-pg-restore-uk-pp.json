@@ -1,6 +1,6 @@
 {
-    "name": "sherlock-webapp-rds-pg-restore-quixa-prod",
-    "description": "pg restore for quixa prod",
+    "name": "shck-webapp-rds-pg-restore-uk-pp",
+    "description": "pg restore test for uk",
     "source": {
       "type": "NO_SOURCE",
       "gitCloneDepth": 1,
@@ -23,12 +23,12 @@
       "environmentVariables": [
         {
           "name": "ENV",
-          "value": "prod",
+          "value": "pp",
           "type": "PLAINTEXT"
         },
         {
           "name": "ENTITY",
-          "value": "quixa",
+          "value": "uk",
           "type": "PLAINTEXT"
         },
         {
@@ -38,24 +38,24 @@
         },
         {
           "name": "S3_BUCKET_OUT_SH",
-          "value": "sh-shck-webapp-data-out-quixa-prod",
+          "value": "sh-shck-webapp-data-out-uk-pp",
           "type": "PLAINTEXT"
         }
       ],
       "privilegedMode": true,
       "imagePullCredentialsType": "SERVICE_ROLE"
     },
-    "serviceRole": "arn:aws:iam::533660228558:role/sherlock-webapp-batch_runner_codebuild-quixa-prod",
+    "serviceRole": "arn:aws:iam::121589520477:role/sherlock-webapp-batch_runner_codebuild-uk-pp",
     "timeoutInMinutes": 60,
     "queuedTimeoutInMinutes": 480,
     "tags": [],
     "vpcConfig": {
-      "vpcId": "vpc-0e02738ce1a40af35",
+      "vpcId": "vpc-0baff5f875025030f",
       "subnets": [
-        "subnet-01d9e35ff462fc4e0"
+        "subnet-0bc809413a04198e0"
       ],
       "securityGroupIds": [
-        "sg-076e9522386bcccf1"
+        "sg-09106d010f9074f2a"
       ]
     },
     "badgeEnabled": false,

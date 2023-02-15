@@ -1,6 +1,6 @@
 {
-    "name": "sherlock-webapp-rds-pg-dump-uk-prod",
-    "description": "pg dump for uk prod",
+    "name": "shck-webapp-rds-pg-restore-quixa-prod",
+    "description": "pg restore for quixa prod",
     "source": {
       "type": "NO_SOURCE",
       "gitCloneDepth": 1,
@@ -28,7 +28,7 @@
         },
         {
           "name": "ENTITY",
-          "value": "uk",
+          "value": "quixa",
           "type": "PLAINTEXT"
         },
         {
@@ -38,14 +38,14 @@
         },
         {
           "name": "S3_BUCKET_OUT_SH",
-          "value": "sh-shck-webapp-data-out-uk-prod",
+          "value": "sh-shck-webapp-data-out-quixa-prod",
           "type": "PLAINTEXT"
         }
       ],
       "privilegedMode": true,
       "imagePullCredentialsType": "SERVICE_ROLE"
     },
-    "serviceRole": "arn:aws:iam::533660228558:role/sherlock-webapp-batch_runner_codebuild-uk-prod",
+    "serviceRole": "arn:aws:iam::533660228558:role/sherlock-webapp-batch_runner_codebuild-quixa-prod",
     "timeoutInMinutes": 60,
     "queuedTimeoutInMinutes": 480,
     "tags": [],

@@ -1,6 +1,6 @@
 {
-    "name": "sherlock-webapp-rds-pg-dump-uk-pp",
-    "description": "pg restore test for uk",
+    "name": "shck-webapp-rds-pg-restore-ireland-prod",
+    "description": "pg restore for ireland prod",
     "source": {
       "type": "NO_SOURCE",
       "gitCloneDepth": 1,
@@ -23,12 +23,12 @@
       "environmentVariables": [
         {
           "name": "ENV",
-          "value": "pp",
+          "value": "prod",
           "type": "PLAINTEXT"
         },
         {
           "name": "ENTITY",
-          "value": "uk",
+          "value": "ireland",
           "type": "PLAINTEXT"
         },
         {
@@ -38,24 +38,24 @@
         },
         {
           "name": "S3_BUCKET_OUT_SH",
-          "value": "sh-shck-webapp-data-out-uk-pp",
+          "value": "sh-shck-webapp-data-out-ireland-prod",
           "type": "PLAINTEXT"
         }
       ],
       "privilegedMode": true,
       "imagePullCredentialsType": "SERVICE_ROLE"
     },
-    "serviceRole": "arn:aws:iam::121589520477:role/sherlock-webapp-batch_runner_codebuild-uk-pp",
+    "serviceRole": "arn:aws:iam::533660228558:role/sherlock-webapp-batch_runner_codebuild-ireland-prod",
     "timeoutInMinutes": 60,
     "queuedTimeoutInMinutes": 480,
     "tags": [],
     "vpcConfig": {
-      "vpcId": "vpc-0baff5f875025030f",
+      "vpcId": "vpc-0e02738ce1a40af35",
       "subnets": [
-        "subnet-0bc809413a04198e0"
+        "subnet-01d9e35ff462fc4e0"
       ],
       "securityGroupIds": [
-        "sg-09106d010f9074f2a"
+        "sg-076e9522386bcccf1"
       ]
     },
     "badgeEnabled": false,
