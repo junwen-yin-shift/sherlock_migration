@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    ENV: ${ENV}
+    ENTITY: ${ENTITY}
+    EXPORT_DATE: ${EXPORT_DATE}
+    S3_BUCKET_OUT_SH: ${S3_BUCKET_OUT_SH}
+  parameter-store:
+    WEBAPP_ENTITY_PARAMS: /${ENV}/webapp/${ENTITY}/params
+phases:    
+  pre_build:
+    on-failure: ABORT
+    commands:
+      - PARAMS=$(echo "${WEBAPP_ENTITY_PARAMS}" | jq -r ".[] | select(.mode | test(\"STANDARD\"))");
+      - |
+        [[ -z "${PARAMS}" ]] && echo "Entity params is empty" && exit 1;
+        PARAM_PG_HOST=$(echo "${PARAMS}" | jq -r '.pg | .host');
+        PARAM_PG_DATABASE=$(echo "${PARAMS}" | jq -r '.pg | .database');
+        PARAM_PG_USERNAME=$(echo "${PARAMS}" | jq -r '.pg | .username');
+        PARAM_PG_PASSWORD=$(echo "${PARAMS}" | jq -r '.pg | .password');
+  build:
+    on-failure: ABORT
+    commands:
+      - mkdir -p dump;
+      - |
+        echo "Copy dump files of date ${EXPORT_DATE} from s3 bucket ${S3_BUCKET_OUT_SH} to local";
+        aws s3 cp s3://${S3_BUCKET_OUT_SH}/dump/${PARAM_PG_DATABASE}_${EXPORT_DATE}.dump dump/${PARAM_PG_DATABASE}.dump
+      - |
+        echo "Run pg-restore"
+        PGPASSWORD=${PARAM_PG_PASSWORD} pg_dump -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} -C -d ${PARAM_PG_DATABASE} dump/${PARAM_PG_DATABASE}.dump;
