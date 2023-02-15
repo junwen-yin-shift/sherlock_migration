@@ -29,4 +29,4 @@ phases:
         aws s3 cp s3://${S3_BUCKET_OUT_SH}/dump/${PARAM_PG_DATABASE}_${EXPORT_DATE}.dump dump/${PARAM_PG_DATABASE}.dump
       - |
         echo "Run pg-restore"
-        PGPASSWORD=${PARAM_PG_PASSWORD} pg_dump -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} -C -d ${PARAM_PG_DATABASE} dump/${PARAM_PG_DATABASE}.dump;
+        PGPASSWORD=${PARAM_PG_PASSWORD} pg_restore -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} --clean -d ${PARAM_PG_DATABASE} dump/${PARAM_PG_DATABASE}.dump;
