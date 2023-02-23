@@ -5,8 +5,7 @@ env:
   variables:
     ENV: ${ENV}
     ENTITY: ${ENTITY}
-    EXPORT_DATE: ${EXPORT_DATE}
-    S3_BUCKET_OUT_SH: ${S3_BUCKET_OUT_SH}
+    S3_BUCKET_DUMP_SH: ${S3_BUCKET_DUMP_SH}
   parameter-store:
     WEBAPP_ENTITY_PARAMS: /${ENV}/webapp/${ENTITY}/params
 phases:    
@@ -14,6 +13,7 @@ phases:
     on-failure: ABORT
     commands:
       - PARAMS=$(echo "${WEBAPP_ENTITY_PARAMS}" | jq -r ".[] | select(.mode | test(\"STANDARD\"))");
+      - EXPORT_DATE=$(date '+%Y_%m_%d')
       - |
         [[ -z "${PARAMS}" ]] && echo "Entity params is empty" && exit 1;
         PARAM_PG_HOST=$(echo "${PARAMS}" | jq -r '.pg | .host');
@@ -25,8 +25,12 @@ phases:
     commands:
       - mkdir -p dump;
       - |
-        echo "Copy dump files of date ${EXPORT_DATE} from s3 bucket ${S3_BUCKET_OUT_SH} to local";
-        aws s3 cp s3://${S3_BUCKET_OUT_SH}/dump/${PARAM_PG_DATABASE}_${EXPORT_DATE}.dump dump/${PARAM_PG_DATABASE}.dump
+        echo "Run pg-dump"
+        PGPASSWORD=${PARAM_PG_PASSWORD} pg_dump -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} --exclude-table-data node_entities --exclude-table-data edge_entities  -Fc ${PARAM_PG_DATABASE} > dump/${PARAM_PG_DATABASE}_${EXPORT_DATE}.dump;
+        PGPASSWORD=${PARAM_PG_PASSWORD} psql -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} -d ${PARAM_PG_DATABASE} -c "\dt" -o dump/tables_${EXPORT_DATE}.txt;
+  post_build:
+    on-failure: ABORT
+    commands: 
       - |
-        echo "Run pg-restore"
-        PGPASSWORD=${PARAM_PG_PASSWORD} pg_restore -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} --clean -d ${PARAM_PG_DATABASE} dump/${PARAM_PG_DATABASE}.dump;
+        echo "Export dump files to SHIFT s3 bucket ${S3_BUCKET_DUMP_SH}";
+        aws s3 cp dump/ s3://${S3_BUCKET_DUMP_SH}/${ENTITY}/ --recursive --no-progress; 

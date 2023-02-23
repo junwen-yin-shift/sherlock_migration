@@ -4,7 +4,7 @@
     "source": {
       "type": "NO_SOURCE",
       "gitCloneDepth": 1,
-      "buildspec": "version: 0.2\n\nenv:\n  shell: bash\n  variables:\n    ENV: ${ENV}\n    ENTITY: ${ENTITY}\n    EXPORT_DATE: ${EXPORT_DATE}\n    S3_BUCKET_OUT_SH: ${S3_BUCKET_OUT_SH}\n  parameter-store:\n    WEBAPP_ENTITY_PARAMS: /${ENV}/webapp/${ENTITY}/params\nphases:    \n  pre_build:\n    on-failure: ABORT\n    commands:\n      - PARAMS=$(echo \"${WEBAPP_ENTITY_PARAMS}\" | jq -r \".[] | select(.mode | test(\\\"STANDARD\\\"))\");\n      - |\n        [[ -z \"${PARAMS}\" ]] && echo \"Entity params is empty\" && exit 1;\n        PARAM_PG_HOST=$(echo \"${PARAMS}\" | jq -r '.pg | .host');\n        PARAM_PG_DATABASE=$(echo \"${PARAMS}\" | jq -r '.pg | .database');\n        PARAM_PG_USERNAME=$(echo \"${PARAMS}\" | jq -r '.pg | .username');\n        PARAM_PG_PASSWORD=$(echo \"${PARAMS}\" | jq -r '.pg | .password');\n  build:\n    on-failure: ABORT\n    commands:\n      - mkdir -p dump;\n      - |\n        echo \"Copy dump files of date ${EXPORT_DATE} from s3 bucket ${S3_BUCKET_OUT_SH} to local\";\n        aws s3 cp s3://${S3_BUCKET_OUT_SH}/dump/${PARAM_PG_DATABASE}_${EXPORT_DATE}.dump dump/${PARAM_PG_DATABASE}.dump\n      - |\n        echo \"Run pg-restore\"\n        PGPASSWORD=${PARAM_PG_PASSWORD} pg_restore -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} --clean -d ${PARAM_PG_DATABASE} dump/${PARAM_PG_DATABASE}.dump;\n",
+      "buildspec": "version: 0.2\n\nenv:\n  shell: bash\n  variables:\n    ENV: ${ENV}\n    ENTITY: ${ENTITY}\n    EXPORT_DATE: ${EXPORT_DATE}\n    S3_BUCKET_DUMP_SH: ${S3_BUCKET_DUMP_SH}\n  parameter-store:\n    WEBAPP_ENTITY_PARAMS: /${ENV}/webapp/${ENTITY}/params\nphases:    \n  pre_build:\n    on-failure: ABORT\n    commands:\n      - PARAMS=$(echo \"${WEBAPP_ENTITY_PARAMS}\" | jq -r \".[] | select(.mode | test(\\\"STANDARD\\\"))\");\n      - |\n        [[ -z \"${PARAMS}\" ]] && echo \"Entity params is empty\" && exit 1;\n        PARAM_PG_HOST=$(echo \"${PARAMS}\" | jq -r '.pg | .host');\n        PARAM_PG_DATABASE=$(echo \"${PARAMS}\" | jq -r '.pg | .database');\n        PARAM_PG_USERNAME=$(echo \"${PARAMS}\" | jq -r '.pg | .username');\n        PARAM_PG_PASSWORD=$(echo \"${PARAMS}\" | jq -r '.pg | .password');\n  build:\n    on-failure: ABORT\n    commands:\n      - mkdir -p dump;\n      - |\n        echo \"Copy dump files of date ${EXPORT_DATE} from s3 bucket ${S3_BUCKET_DUMP_SH} to local\";\n        aws s3 cp s3://${S3_BUCKET_DUMP_SH}/${ENTITY}/${PARAM_PG_DATABASE}_${EXPORT_DATE}.dump dump/${PARAM_PG_DATABASE}.dump\n      - |\n        echo \"Run pg-restore\"\n        PGPASSWORD=${PARAM_PG_PASSWORD} pg_restore -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} --clean -d ${PARAM_PG_DATABASE} dump/${PARAM_PG_DATABASE}.dump;",
       "insecureSsl": false
     },
     "secondarySources": [],
@@ -32,13 +32,13 @@
             "type": "PLAINTEXT"
         },
         {
-            "name": "S3_BUCKET_OUT_SH",
-            "value": "sh-shck-webapp-data-out-hk-dev",
-            "type": "PLAINTEXT"
+          "name": "EXPORT_DATE",
+          "value": "2023_01_01",
+          "type": "PLAINTEXT"
         },
         {
-          "name": "EXPORT_DATE",
-          "value": "2023_02_15",
+          "name": "S3_BUCKET_DUMP_SH",
+          "value": "sh-shck-webapp-axa_dump-core-dev",
           "type": "PLAINTEXT"
         }
       ],
