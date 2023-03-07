@@ -38,7 +38,7 @@
         },
         {
           "name": "S3_BUCKET_DUMP_SH",
-          "value": "sh-shck-webapp-axa_dump-core-dev",
+          "value": "sh-shck-webapp-axa-dump-core-dev",
           "type": "PLAINTEXT"
         }
       ],
