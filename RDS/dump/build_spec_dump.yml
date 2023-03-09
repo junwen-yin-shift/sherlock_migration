@@ -33,4 +33,4 @@ phases:
     commands: 
       - |
         echo "Export dump files to SHIFT s3 bucket ${S3_BUCKET_DUMP_SH}";
-        aws s3 cp dump/ s3://${S3_BUCKET_DUMP_SH}/${ENTITY}/ --recursive --no-progress; 
+        aws s3 cp dump/ s3://${S3_BUCKET_DUMP_SH}/${ENTITY}/ --recursive --acl bucket-owner-full-control --no-progress; 

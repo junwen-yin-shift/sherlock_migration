@@ -4,6 +4,8 @@
 1. cd RDS/dump/axa_dev 
 2. aws codebuild create-project --cli-input-json file://sherlock-webapp-rds-pg-dump-hk-dev.json (use update-project if project exists)
 
+aws codebuild update-project --cli-input-json file://sherlock-webapp-rds-pg-dump-hk-dev.json (use update-project if project exists)
+
 ## Click Start Build to run the dump job
 
 1. the job will connect to rds database, generate dump files to local
