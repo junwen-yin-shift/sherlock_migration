@@ -1,6 +1,6 @@
 {
-    "name": "shck-webapp-rds-pg-restore-quixa-prod",
-    "description": "pg restore for quixa prod",
+    "name": "shck-webapp-rds-pg-restore-switzerland-prod",
+    "description": "pg restore for switzerland prod",
     "source": {
       "type": "NO_SOURCE",
       "gitCloneDepth": 1,
@@ -28,7 +28,7 @@
         },
         {
           "name": "ENTITY",
-          "value": "quixa",
+          "value": "switzerland",
           "type": "PLAINTEXT"
         },
         {
@@ -45,7 +45,7 @@
       "privilegedMode": true,
       "imagePullCredentialsType": "SERVICE_ROLE"
     },
-    "serviceRole": "arn:aws:iam::709375566191:role/shck-webapp-batch_runner_codebuild-quixa-prod",
+    "serviceRole": "arn:aws:iam::709375566191:role/shck-webapp-batch_runner_codebuild-switzerland-prod",
     "timeoutInMinutes": 60,
     "queuedTimeoutInMinutes": 480,
     "tags": [],

@@ -18,7 +18,7 @@
     },
     "environment": {
       "type": "LINUX_CONTAINER",
-      "image": "947332944497.dkr.ecr.eu-central-1.amazonaws.com/sherlock-tools-ops:v8.3.1",
+      "image": "650257924275.dkr.ecr.eu-central-1.amazonaws.com/shck-tools-ops:v9.0.0",
       "computeType": "BUILD_GENERAL1_SMALL",
       "environmentVariables": [
         {
@@ -45,17 +45,19 @@
       "privilegedMode": true,
       "imagePullCredentialsType": "SERVICE_ROLE"
     },
-    "serviceRole": "arn:aws:iam::533660228558:role/sherlock-webapp-batch_runner_codebuild-ireland-prod",
+    "serviceRole": "arn:aws:iam::709375566191:role/shck-webapp-batch_runner_codebuild-ireland-prod",
     "timeoutInMinutes": 60,
     "queuedTimeoutInMinutes": 480,
     "tags": [],
     "vpcConfig": {
-      "vpcId": "vpc-0e02738ce1a40af35",
+      "vpcId": "vpc-09835cdd439a1fc49",
       "subnets": [
-        "subnet-01d9e35ff462fc4e0"
+        "subnet-0c366470d58c70048",
+        "subnet-0058628e141d98cac",
+        "subnet-0c0db25da74b4f281"
       ],
       "securityGroupIds": [
-        "sg-076e9522386bcccf1"
+        "sg-0d5bd74b24963c33f"
       ]
     },
     "badgeEnabled": false,
