@@ -17,3 +17,5 @@ for ent in ${ENTITY_LIST[@]}; do
   echo "start to copy s3 bucket : from axa-sherlock-documents-${ENTITY}-${ENV} to sh-shck-webapp-documents-${ENTITY}-${ENV}"
   aws s3 sync s3://axa-sherlock-documents-${ENTITY}-${ENV} s3://sh-shck-webapp-documents-${ENTITY}-${ENV} --acl bucket-owner-full-control --quiet
 done
+
+echo "job finished"
