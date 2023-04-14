@@ -2,8 +2,10 @@
 set -e
 ENV=prod
 
-echo "start to copy s3 bucket : from axa-sherlock-ml-sagemaker-models-core-${ENV}/uk to sh-shck-ml-sagemaker-models-core-${ENV}/uk"
-aws s3 sync s3://axa-sherlock-ml-sagemaker-models-core-${ENV}/uk s3://sh-shck-ml-sagemaker-models-core-${ENV}/uk --acl bucket-owner-full-control --quiet
+# with AWS accout role/axa-rev-sherlock-prod-ops_contributor
+
+## echo "start to copy s3 bucket : from axa-sherlock-ml-sagemaker-models-core-${ENV}/uk to sh-shck-ml-sagemaker-models-core-${ENV}/uk"
+## aws s3 sync s3://axa-sherlock-ml-sagemaker-models-core-${ENV}/uk s3://sh-shck-ml-sagemaker-models-core-${ENV}/uk --acl bucket-owner-full-control --quiet
 
 echo "start to copy s3 bucket : from axa-sherlock-incoming-uk-${ENV}/incoming_manual to sh-shck-platform-incoming-uk-${ENV}/incoming_manual"
 aws s3 sync s3://axa-sherlock-incoming-uk-${ENV}/incoming_manual/ s3://sh-shck-platform-incoming-uk-${ENV}/incoming_manual/ --acl bucket-owner-full-control --quiet
