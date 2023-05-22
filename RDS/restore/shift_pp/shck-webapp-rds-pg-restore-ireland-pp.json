@@ -1,6 +1,6 @@
 {
-    "name": "shck-webapp-rds-pg-restore-uk-pp",
-    "description": "pg restore test for uk",
+    "name": "shck-webapp-rds-pg-restore-ireland-pp",
+    "description": "pg restore test for ireland",
     "source": {
       "type": "NO_SOURCE",
       "gitCloneDepth": 1,
@@ -28,7 +28,7 @@
         },
         {
           "name": "ENTITY",
-          "value": "uk",
+          "value": "ireland",
           "type": "PLAINTEXT"
         },
         {
@@ -45,7 +45,7 @@
       "privilegedMode": true,
       "imagePullCredentialsType": "SERVICE_ROLE"
     },
-    "serviceRole": "arn:aws:iam::406078486315:role/shck-webapp-batch_runner_codebuild-uk-pp",
+    "serviceRole": "arn:aws:iam::406078486315:role/shck-webapp-batch_runner_codebuild-ireland-pp",
     "timeoutInMinutes": 60,
     "queuedTimeoutInMinutes": 480,
     "tags": [],

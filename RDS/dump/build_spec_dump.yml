@@ -26,8 +26,8 @@ phases:
       - mkdir -p dump;
       - |
         echo "Run pg-dump"
-        PGPASSWORD=${PARAM_PG_PASSWORD} pg_dump -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} --exclude-table-data node_entities --exclude-table-data edge_entities  -Fc ${PARAM_PG_DATABASE} > dump/${PARAM_PG_DATABASE}_${EXPORT_DATE}.dump;
-        PGPASSWORD=${PARAM_PG_PASSWORD} psql -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} -d ${PARAM_PG_DATABASE} -c "\dt" -o dump/tables_${EXPORT_DATE}.txt;
+        PGPASSWORD=${PARAM_PG_PASSWORD} pg_dump -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} --exclude-table-data node_entities --exclude-table-data edge_entities  -Fc ${PARAM_PG_DATABASE} > dump/${PARAM_PG_DATABASE}_${ENV}_${EXPORT_DATE}.dump;
+        PGPASSWORD=${PARAM_PG_PASSWORD} psql -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} -d ${PARAM_PG_DATABASE} -c "\dt" -o dump/tables_${ENV}_${EXPORT_DATE}.txt;
   post_build:
     on-failure: ABORT
     commands: 
