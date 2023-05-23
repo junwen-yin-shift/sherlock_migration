@@ -6,8 +6,8 @@ env:
     ENV: ${ENV}
     ENTITY: ${ENTITY}
     EXPORT_DATE: ${EXPORT_DATE}
+    EXPORT_ENV: ${EXPORT_ENV}
     S3_BUCKET_DUMP_SH: ${S3_BUCKET_DUMP_SH}
-    FROM_PROD: ${FROM_PROD}
   parameter-store:
     WEBAPP_ENTITY_PARAMS: /${ENV}/webapp/${ENTITY}/params
 phases:    
@@ -21,13 +21,14 @@ phases:
         PARAM_PG_DATABASE=$(echo "${PARAMS}" | jq -r '.pg | .database');
         PARAM_PG_USERNAME=$(echo "${PARAMS}" | jq -r '.pg | .username');
         PARAM_PG_PASSWORD=$(echo "${PARAMS}" | jq -r '.pg | .password');
+        TAG
   build:
     on-failure: ABORT
     commands:
       - mkdir -p dump;
       - |
         echo "Copy dump files of date ${EXPORT_DATE} from s3 bucket ${S3_BUCKET_DUMP_SH} to local";
-        aws s3 cp s3://${S3_BUCKET_DUMP_SH}/${ENTITY}/${PARAM_PG_DATABASE}_${ENV}_${EXPORT_DATE}.dump dump/${PARAM_PG_DATABASE}.dump
+        aws s3 cp s3://${S3_BUCKET_DUMP_SH}/${ENTITY}/${PARAM_PG_DATABASE}_${EXPORT_ENV}_${EXPORT_DATE}.dump dump/${PARAM_PG_DATABASE}.dump
       - |
         echo "Run pg-restore"
         PGPASSWORD=${PARAM_PG_PASSWORD} pg_restore -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} --clean -d ${PARAM_PG_DATABASE} dump/${PARAM_PG_DATABASE}.dump;
