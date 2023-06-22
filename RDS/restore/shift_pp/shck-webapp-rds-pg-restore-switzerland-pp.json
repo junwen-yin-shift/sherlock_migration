@@ -1,6 +1,6 @@
 {
-    "name": "shck-webapp-rds-pg-restore-quixa-prod",
-    "description": "pg restore for quixa prod",
+    "name": "shck-webapp-rds-pg-restore-switzerland-pp",
+    "description": "pg restore test for switzerland",
     "source": {
       "type": "NO_SOURCE",
       "gitCloneDepth": 1,
@@ -23,12 +23,12 @@
       "environmentVariables": [
         {
           "name": "ENV",
-          "value": "prod",
+          "value": "pp",
           "type": "PLAINTEXT"
         },
         {
           "name": "ENTITY",
-          "value": "quixa",
+          "value": "switzerland",
           "type": "PLAINTEXT"
         },
         {
@@ -38,31 +38,31 @@
         },
         {
           "name": "EXPORT_ENV",
-          "value": "prod",
+          "value": "pp",
           "type": "PLAINTEXT"
         },
         {
           "name": "S3_BUCKET_DUMP_SH",
-          "value": "sh-shck-webapp-axa-dump-core-prod",
+          "value": "sh-shck-webapp-axa-dump-core-pp",
           "type": "PLAINTEXT"
         }
       ],
       "privilegedMode": true,
       "imagePullCredentialsType": "SERVICE_ROLE"
     },
-    "serviceRole": "arn:aws:iam::709375566191:role/shck-webapp-batch_runner_codebuild-quixa-prod",
+    "serviceRole": "arn:aws:iam::406078486315:role/shck-webapp-batch_runner_codebuild-switzerland-pp",
     "timeoutInMinutes": 60,
     "queuedTimeoutInMinutes": 480,
     "tags": [],
     "vpcConfig": {
       "vpcId": "vpc-09835cdd439a1fc49",
       "subnets": [
-        "subnet-0c366470d58c70048",
-        "subnet-0058628e141d98cac",
-        "subnet-0c0db25da74b4f281"
+        "subnet-0d7d70838b53e3b2c",
+        "subnet-03c8dc376f86e7248",
+        "subnet-0dce7357697a0427b"
       ],
       "securityGroupIds": [
-        "sg-0d5bd74b24963c33f"
+        "sg-0bfd71def45e38650"
       ]
     },
     "badgeEnabled": false,

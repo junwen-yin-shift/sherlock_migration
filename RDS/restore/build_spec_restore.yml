@@ -21,7 +21,6 @@ phases:
         PARAM_PG_DATABASE=$(echo "${PARAMS}" | jq -r '.pg | .database');
         PARAM_PG_USERNAME=$(echo "${PARAMS}" | jq -r '.pg | .username');
         PARAM_PG_PASSWORD=$(echo "${PARAMS}" | jq -r '.pg | .password');
-        TAG
   build:
     on-failure: ABORT
     commands:
