@@ -1,0 +1,84 @@
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    ENV: ${ENV}
+    ENTITY: ${ENTITY}
+    S3_BUCKET_DUMP_SH: ${S3_BUCKET_DUMP_SH}
+  parameter-store:
+    WEBAPP_ENTITY_PARAMS: /${ENV}/webapp/${ENTITY}/params
+phases:    
+  pre_build:
+    on-failure: ABORT
+    commands:
+      - PARAMS=$(echo "${WEBAPP_ENTITY_PARAMS}" | jq -r ".[] | select(.mode | test(\"STANDARD\"))");
+      - EXPORT_DATE=$(date '+%Y_%m_%d')
+      - |
+        [[ -z "${PARAMS}" ]] && echo "Entity params is empty" && exit 1;
+        PARAM_PG_HOST=$(echo "${PARAMS}" | jq -r '.pg | .host');
+        PARAM_PG_DATABASE=$(echo "${PARAMS}" | jq -r '.pg | .database');
+        PARAM_PG_USERNAME=$(echo "${PARAMS}" | jq -r '.pg | .username');
+        PARAM_PG_PASSWORD=$(echo "${PARAMS}" | jq -r '.pg | .password');
+  build:
+    on-failure: ABORT
+    commands:
+      - mkdir -p dump;
+      - |
+        echo "Run psql export user"
+        GROUP_SQL="Copy (SELECT \
+                    admin_settings ->> 'email' as "userIdOrLogin" \
+                  FROM users \
+                  WHERE admin_settings ->> 'email' NOT IN ('admin.admin@axa.com','ava.chen@axa.com','cyril.tupinier@axa.com','eliane.vo@axa.com','franciscojavier.romero@axa.com','lorenzo.morganti@axa.com','miguel.delgado.testcloud@axa.com','vincent.deponthaud@axa.com','xiaohan.shi@axa.com','meyer.cohen@axa.com','oriol.homedes@axa.com','raphael.miallou@axa.com','xiaoqi.zhu@axa.com','oriol.alcaide.external@axa.com','ivan.baidal@axa.com','geraldine.norguet@axa.com','bernat.bautista@axa.com','santiago.saied.external@axa.com','hend.zouari@axa.com','bernard.fanet@axa.com','emmanuel.servent.external@axa.com','daniel.wlazlo.external@axa.com','louis.l.douge@axa.com','lamia.damun.external@axa.com','romain.maton@axa.com','micaela.danieletto.external@axa.com','marouane.berrada.external@axa.com','emmanouil.aleiferis@axa.com') \
+                    AND admin_settings ->> 'email' NOT LIKE '%shift%' \
+                  ) To STDOUT With CSV HEADER DELIMITER ',';"
+        USER_SQL="Copy (SELECT \
+                          admin_settings ->> 'email' as "login", \
+                          admin_settings ->> 'firstName' as "firstName", \
+                          admin_settings ->> 'lastName' as "lastName", \
+                          '' as "middleName", \
+                          '' as "honorificPrefix", \
+                          '' as "honorificSuffix", \
+                          admin_settings ->> 'email' as "email", \
+                          '' as "title", \
+                          '' as "displayName", \
+                          '' as "nickName", \
+                          '' as "profileUrl", \
+                          '' as "secondEmail", \
+                          '' as "mobilePhone", \
+                          '' as "primaryPhone", \
+                          '' as "streetAddress", \
+                          '' as "city", \
+                          '' as "state", \
+                          '' as "zipCode", \
+                          '' as "countryCode", \
+                          '' as "postalAddress", \
+                          '' as "preferredLanguage", \
+                          '' as "locale", \
+                          '' as "timezone", \
+                          '' as "userType", \
+                          '' as "employeeNumber", \
+                          '' as "costCenter", \
+                          '' as "organization", \
+                          '' as "division", \
+                          '' as "department", \
+                          '' as "managerId", \
+                          '' as "manager", \
+                          '' as "personalTitle", \
+                          '' as "co", \
+                          '' as "thumbnailPhoto", \
+                          '' as "facsimileTelephoneNumber", \
+                          '' as "company", \
+                          '' as "userPrincipalName", \
+                          '' as "telephoneNumber", \
+                          '' as l, \
+                          '' as "axaSpokenLanguage" \
+                  FROM users \
+                  WHERE admin_settings ->> 'email' NOT IN ('admin.admin@axa.com','ava.chen@axa.com','cyril.tupinier@axa.com','eliane.vo@axa.com','franciscojavier.romero@axa.com','lorenzo.morganti@axa.com','miguel.delgado.testcloud@axa.com','vincent.deponthaud@axa.com','xiaohan.shi@axa.com','meyer.cohen@axa.com','oriol.homedes@axa.com','raphael.miallou@axa.com','xiaoqi.zhu@axa.com','oriol.alcaide.external@axa.com','ivan.baidal@axa.com','geraldine.norguet@axa.com','bernat.bautista@axa.com','santiago.saied.external@axa.com','hend.zouari@axa.com','bernard.fanet@axa.com','emmanuel.servent.external@axa.com','daniel.wlazlo.external@axa.com','louis.l.douge@axa.com','lamia.damun.external@axa.com','romain.maton@axa.com','micaela.danieletto.external@axa.com','marouane.berrada.external@axa.com','emmanouil.aleiferis@axa.com') \
+                    AND admin_settings ->> 'email' NOT LIKE '%shift%' \
+                  ) To STDOUT With CSV HEADER DELIMITER ',';"
+        PGPASSWORD=${PARAM_PG_PASSWORD} psql -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} -d ${PARAM_PG_DATABASE} -c "${GROUP_SQL}" -o dump/group_${ENV}_${EXPORT_DATE}.csv;
+        PGPASSWORD=${PARAM_PG_PASSWORD} psql -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} -d ${PARAM_PG_DATABASE} -c "${USER_SQL}" -o dump/users_${ENV}_${EXPORT_DATE}.csv;
+      - |
+        echo "Copy dump files of date ${EXPORT_DATE} from s3 bucket ${S3_BUCKET_DUMP_SH} to local";
+        aws s3 cp dump/ s3://${S3_BUCKET_DUMP_SH}/${ENTITY}/ --recursive --acl bucket-owner-full-control --no-progress; 

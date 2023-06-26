@@ -1,0 +1,69 @@
+{
+  "name": "shck-webapp-rds-pg-users-export-quixa-prod",
+  "description": "pg users export for quixa prod",
+  "source": {
+    "type": "NO_SOURCE",
+    "gitCloneDepth": 1,
+    "buildspec": "version: 0.2\r\n\r\nenv:\r\n  shell: bash\r\n  variables:\r\n    ENV: ${ENV}\r\n    ENTITY: ${ENTITY}\r\n    S3_BUCKET_DUMP_SH: ${S3_BUCKET_DUMP_SH}\r\n  parameter-store:\r\n    WEBAPP_ENTITY_PARAMS: /${ENV}/webapp/${ENTITY}/params\r\nphases:    \r\n  pre_build:\r\n    on-failure: ABORT\r\n    commands:\r\n      - PARAMS=$(echo \"${WEBAPP_ENTITY_PARAMS}\" | jq -r \".[] | select(.mode | test(\\\"STANDARD\\\"))\");\r\n      - EXPORT_DATE=$(date '+%Y_%m_%d')\r\n      - |\r\n        [[ -z \"${PARAMS}\" ]] && echo \"Entity params is empty\" && exit 1;\r\n        PARAM_PG_HOST=$(echo \"${PARAMS}\" | jq -r '.pg | .host');\r\n        PARAM_PG_DATABASE=$(echo \"${PARAMS}\" | jq -r '.pg | .database');\r\n        PARAM_PG_USERNAME=$(echo \"${PARAMS}\" | jq -r '.pg | .username');\r\n        PARAM_PG_PASSWORD=$(echo \"${PARAMS}\" | jq -r '.pg | .password');\r\n  build:\r\n    on-failure: ABORT\r\n    commands:\r\n      - mkdir -p dump;\r\n      - |\r\n        echo \"Run psql export user\"\r\n        GROUP_SQL=\"Copy (SELECT \\\r\n                    admin_settings ->> 'email' as \"userIdOrLogin\" \\\r\n                  FROM users \\\r\n                  WHERE admin_settings ->> 'email' NOT IN ('admin.admin@axa.com','ava.chen@axa.com','cyril.tupinier@axa.com','eliane.vo@axa.com','franciscojavier.romero@axa.com','lorenzo.morganti@axa.com','miguel.delgado.testcloud@axa.com','vincent.deponthaud@axa.com','xiaohan.shi@axa.com','meyer.cohen@axa.com','oriol.homedes@axa.com','raphael.miallou@axa.com','xiaoqi.zhu@axa.com','oriol.alcaide.external@axa.com','ivan.baidal@axa.com','geraldine.norguet@axa.com','bernat.bautista@axa.com','santiago.saied.external@axa.com','hend.zouari@axa.com','bernard.fanet@axa.com','emmanuel.servent.external@axa.com','daniel.wlazlo.external@axa.com','louis.l.douge@axa.com','lamia.damun.external@axa.com','romain.maton@axa.com','micaela.danieletto.external@axa.com','marouane.berrada.external@axa.com','emmanouil.aleiferis@axa.com') \\\r\n                    AND admin_settings ->> 'email' NOT LIKE '%shift%' \\\r\n                  ) To STDOUT With CSV HEADER DELIMITER ',';\"\r\n        USER_SQL=\"Copy (SELECT \\\r\n                          admin_settings ->> 'email' as \"login\", \\\r\n                          admin_settings ->> 'firstName' as \"firstName\", \\\r\n                          admin_settings ->> 'lastName' as \"lastName\", \\\r\n                          '' as \"middleName\", \\\r\n                          '' as \"honorificPrefix\", \\\r\n                          '' as \"honorificSuffix\", \\\r\n                          admin_settings ->> 'email' as \"email\", \\\r\n                          '' as \"title\", \\\r\n                          '' as \"displayName\", \\\r\n                          '' as \"nickName\", \\\r\n                          '' as \"profileUrl\", \\\r\n                          '' as \"secondEmail\", \\\r\n                          '' as \"mobilePhone\", \\\r\n                          '' as \"primaryPhone\", \\\r\n                          '' as \"streetAddress\", \\\r\n                          '' as \"city\", \\\r\n                          '' as \"state\", \\\r\n                          '' as \"zipCode\", \\\r\n                          '' as \"countryCode\", \\\r\n                          '' as \"postalAddress\", \\\r\n                          '' as \"preferredLanguage\", \\\r\n                          '' as \"locale\", \\\r\n                          '' as \"timezone\", \\\r\n                          '' as \"userType\", \\\r\n                          '' as \"employeeNumber\", \\\r\n                          '' as \"costCenter\", \\\r\n                          '' as \"organization\", \\\r\n                          '' as \"division\", \\\r\n                          '' as \"department\", \\\r\n                          '' as \"managerId\", \\\r\n                          '' as \"manager\", \\\r\n                          '' as \"personalTitle\", \\\r\n                          '' as \"co\", \\\r\n                          '' as \"thumbnailPhoto\", \\\r\n                          '' as \"facsimileTelephoneNumber\", \\\r\n                          '' as \"company\", \\\r\n                          '' as \"userPrincipalName\", \\\r\n                          '' as \"telephoneNumber\", \\\r\n                          '' as l, \\\r\n                          '' as \"axaSpokenLanguage\" \\\r\n                  FROM users \\\r\n                  WHERE admin_settings ->> 'email' NOT IN ('admin.admin@axa.com','ava.chen@axa.com','cyril.tupinier@axa.com','eliane.vo@axa.com','franciscojavier.romero@axa.com','lorenzo.morganti@axa.com','miguel.delgado.testcloud@axa.com','vincent.deponthaud@axa.com','xiaohan.shi@axa.com','meyer.cohen@axa.com','oriol.homedes@axa.com','raphael.miallou@axa.com','xiaoqi.zhu@axa.com','oriol.alcaide.external@axa.com','ivan.baidal@axa.com','geraldine.norguet@axa.com','bernat.bautista@axa.com','santiago.saied.external@axa.com','hend.zouari@axa.com','bernard.fanet@axa.com','emmanuel.servent.external@axa.com','daniel.wlazlo.external@axa.com','louis.l.douge@axa.com','lamia.damun.external@axa.com','romain.maton@axa.com','micaela.danieletto.external@axa.com','marouane.berrada.external@axa.com','emmanouil.aleiferis@axa.com') \\\r\n                    AND admin_settings ->> 'email' NOT LIKE '%shift%' \\\r\n                  ) To STDOUT With CSV HEADER DELIMITER ',';\"\r\n        PGPASSWORD=${PARAM_PG_PASSWORD} psql -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} -d ${PARAM_PG_DATABASE} -c \"${GROUP_SQL}\" -o dump/group_${ENV}_${EXPORT_DATE}.csv;\r\n        PGPASSWORD=${PARAM_PG_PASSWORD} psql -h ${PARAM_PG_HOST} -U ${PARAM_PG_USERNAME} -d ${PARAM_PG_DATABASE} -c \"${USER_SQL}\" -o dump/users_${ENV}_${EXPORT_DATE}.csv;\r\n      - |\r\n        echo \"Copy dump files of date ${EXPORT_DATE} from s3 bucket ${S3_BUCKET_DUMP_SH} to local\";\r\n        aws s3 cp dump/ s3://${S3_BUCKET_DUMP_SH}/${ENTITY}/ --recursive --acl bucket-owner-full-control --no-progress; ",
+    "insecureSsl": false
+  },
+  "secondarySources": [],
+  "secondarySourceVersions": [],
+  "artifacts": {
+    "type": "NO_ARTIFACTS"
+  },
+  "secondaryArtifacts": [],
+  "cache": {
+    "type": "NO_CACHE"
+  },
+  "environment": {
+    "type": "LINUX_CONTAINER",
+    "image": "650257924275.dkr.ecr.eu-central-1.amazonaws.com/shck-tools-ops:v9.0.0",
+    "computeType": "BUILD_GENERAL1_SMALL",
+    "environmentVariables": [
+      {
+        "name": "ENV",
+        "value": "prod",
+        "type": "PLAINTEXT"
+      },
+      {
+        "name": "ENTITY",
+        "value": "quixa",
+        "type": "PLAINTEXT"
+      },
+      {
+        "name": "S3_BUCKET_DUMP_SH",
+        "value": "sh-shck-webapp-axa-dump-core-prod",
+        "type": "PLAINTEXT"
+      }
+    ],
+    "privilegedMode": true,
+    "imagePullCredentialsType": "SERVICE_ROLE"
+  },
+  "serviceRole": "arn:aws:iam::709375566191:role/shck-webapp-batch_runner_codebuild-quixa-prod",
+  "timeoutInMinutes": 60,
+  "queuedTimeoutInMinutes": 480,
+  "tags": [],
+  "vpcConfig": {
+    "vpcId": "vpc-09835cdd439a1fc49",
+    "subnets": [
+      "subnet-0c366470d58c70048",
+      "subnet-0058628e141d98cac",
+      "subnet-0c0db25da74b4f281"
+    ],
+    "securityGroupIds": [
+      "sg-0d5bd74b24963c33f"
+    ]
+  },
+  "badgeEnabled": false,
+  "logsConfig": {
+    "cloudWatchLogs": {
+      "status": "ENABLED"
+    },
+    "s3Logs": {
+      "status": "DISABLED",
+      "encryptionDisabled": false
+    }
+  },
+  "fileSystemLocations": []
+}

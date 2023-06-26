@@ -1,0 +1,1 @@
+aws codebuild create-project --cli-input-json file://shck-webapp-rds-pg-users-export-hk-dev.json
